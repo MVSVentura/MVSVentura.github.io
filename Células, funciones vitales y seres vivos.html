@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Science vocabulary game for 5th grade - Living things and cell parts" />
+  <title>Living things and cell parts</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f8ff;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    /* Pantalla de inicio */
+    .start-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #1a3a6e 0%, #4a7ac8 100%);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      color: white; z-index: 2000; opacity: 1; pointer-events: auto; transition: opacity 0.5s ease;
+      overflow-y: auto;
+      padding: 20px 0;
+    }
+    .start-screen.hidden { opacity: 0; pointer-events: none; }
+    .start-content {
+      background-color: #fff; /* blanca */
+      color: #333;            /* texto oscuro */
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .start-title {
+      font-size: 2.5rem;
+      color: #001DFF;
+      margin-bottom: 25px;
+      font-weight: bold;
+    }
+    .select-game {
+      font-size: 1.3rem;
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+    .level-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+      align-items: center;
+    }
+    .level-button {
+      background-color: #E8EAFF;
+      color: #333;
+      border: none;
+      padding: 15px 20px;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+      width: 80%;
+      max-width: 300px;
+    }
+    .level-button:hover {
+      background-color: #D0D4FF;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .level-button.completed-correct {
+      background-color: #27ae60;
+      color: white;
+    }
+    .level-button.completed-wrong {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .level-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .level-status {
+      font-size: 0.8rem;
+      margin-top: 5px;
+      font-weight: normal;
+    }
+    .finish-button {
+      background-color: #ffa420;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(255, 164, 32, 0.3);
+      transition: all 0.3s ease;
+      font-weight: bold;
+      margin-top: 20px;
+      width: 80%;
+      max-width: 300px;
+    }
+    .finish-button:hover {
+      background-color: #e6941a;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(255, 164, 32, 0.4);
+    }
+    
+    /* Contenedor de juego */
+    .game-container-wrapper {
+      background-color: #f0f8ff;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .game-header {
+      background-color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .game-title {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      font-weight: bold;
+      margin: 0;
+    }
+    
+    .game-instructions {
+      background-color: #f8f9fa;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      color: #555;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .timer {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #27ae60;
+    }
+    
+    .game-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .give-up-button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .give-up-button:hover {
+      background-color: #c0392b;
+    }
+    
+    .progress-container {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 20px;
+      background-color: #4CAF50;
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 10px;
+    }
+    
+    .progress-text {
+      text-align: center;
+      margin-top: 5px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    
+    /* Game area */
+    .game-area {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    /* Grid adaptable 2 → 3 → 4 columnas */
+    .match-container {
+      display: grid;
+      gap: 15px;
+      grid-template-columns: repeat(2, 1fr); /* base: 2 col */
+    }
+    @media (min-width: 700px) {
+      .match-container { grid-template-columns: repeat(3, 1fr); } /* 3 col */
+    }
+    @media (min-width: 1000px) {
+      .match-container { grid-template-columns: repeat(4, 1fr); } /* 4 col */
+    }
+    
+    .card {
+      min-width: 120px;
+      height: 100px;
+      background-color: #3498db;
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.9rem;
+      padding: 10px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    .card:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .card.selected { background-color: #f1c40f; transform: scale(1.05); }
+    .card.matched { background-color: #27ae60; color: white; cursor: default; }
+    
+    /* --- Nivel 4: banco y cajas --- */
+    .word-bank-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 16px 0 14px 0;
+    }
+    .bank-item {
+      padding: 12px 16px;
+      background-color: #9b59b6;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 100px;
+      text-align: center;
+      user-select: none;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      draggable: true;
+    }
+    .bank-item:hover { transform: scale(1.05); }
+    .bank-item.selected { background-color: #f39c12; box-shadow: 0 0 10px #f39c12; }
+    .bank-item.used { display: none; }
+    .bank-item.dragging { opacity: 0.5; transform: rotate(5deg); }
+    
+    .drop-zones {
+      width: 100%;
+      margin: 8px auto 20px auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    @media (min-width: 700px) { .drop-zones { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1100px) { .drop-zones { grid-template-columns: repeat(4, 1fr); } }
+    
+    .drop-group { margin-bottom: 15px; }
+    .drop-group h3 { margin-bottom: 8px; color: #2980b9; font-size: 1.1rem; }
+    .drop-area {
+      min-height: 60px;
+      background-color: white;
+      border: 2px dashed #a9cce3;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .drop-area:hover { border-color: #2980b9; }
+    .drop-area.drag-over { background-color: #e8f4fc; border-color: #3498db; }
+    
+    .placed-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background-color: #8e44ad;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      min-width: 90px;
+      text-align: center;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      draggable: true;
+    }
+    .placed-item.correct { background-color: #27ae60; }
+    .placed-item.wrong { background-color: #e74c3c; }
+    .placed-item.dragging { opacity: 0.7; transform: scale(0.95); }
+    
+    /* --- Nivel 5 (orden) --- */
+    .order-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 20px auto;
+    }
+    
+    .order-slots {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    
+    .order-slot {
+      width: 120px;
+      height: 60px;
+      border: 2px dashed #95a5a6;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .order-slot:hover { background-color: #ecf0f1; border-color: #2c3e50; }
+    .order-slot.occupied { color: #2c3e50; border-style: solid; }
+    .order-slot.drag-over { background-color: #e8f4fc; border-color: #3498db; }
+    @media (max-width: 768px) {
+      .order-slots { flex-direction: column; align-items: center; }
+      .order-slot { width: 100%; }
+    }
+    
+    /* Botones de acción */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .check-button, .continue-button, .back-menu-button {
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      font-weight: bold;
+    }
+    
+    .continue-button, .back-menu-button {
+      background-color: #3498db; /* Cambiado a azul */
+    }
+    
+    .check-button:hover, .continue-button:hover, .back-menu-button:hover {
+      background-color: #d68910;
+    }
+    
+    .continue-button:hover, .back-menu-button:hover {
+      background-color: #2980b9; /* Cambiado a un tono más oscuro de azul */
+    }
+    
+    /* Pantalla final */
+    .results-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #1a3a6e 0%, #4a7ac8 100%);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      color: white; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+    }
+    .results-screen.active { opacity: 1; pointer-events: auto; }
+    .results-content {
+      background-color: #fff;
+      color: #333;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .results-content h2 { margin-bottom: 12px; color: #2c3e50; }
+    .game-title {
+      color: #0066cc;
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin: 15px 0;
+    }
+    .trophy { font-size: 4rem; color: gold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); margin: 10px 0; display: none; }
+    .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0.7; pointer-events: none; }
+    .score-label { font-size: 1.1rem; color: #555; margin: 5px 0; }
+    #finalScore { font-size: 2rem; font-weight: bold; margin: 10px 0; color: #2c3e50; }
+    #finalTime, #totalScoreDetails { font-size: 1rem; margin: 6px 0; color: #333; }
+    .credit {
+      font-size: 0.95rem;
+      color: #2c3e50;
+      margin: 16px 0 4px 0;
+      font-style: italic;
+    }
+    
+    /* Botón Play Again con estilo corregido */
+    #playAgainButton {
+      background-color: #9fb7f4;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    
+    #playAgainButton:hover {
+      background-color: #7a9bd6;
+      transform: translateY(-2px);
+    }
+    
+    /* Imagen en la pantalla final */
+    .final-image {
+      margin-top: 20px;
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #f8f9fa; /* Color de fondo mientras carga */
+      padding: 10px; /* Espacio alrededor de la imagen */
+    }
+    
+    /* Diálogo de confirmación */
+    .confirm-dialog {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .confirm-dialog.active { opacity: 1; pointer-events: auto; }
+    .confirm-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .confirm-title {
+      font-size: 1.3rem;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .confirm-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    .confirm-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .confirm-yes {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .confirm-yes:hover {
+      background-color: #c0392b;
+    }
+    .confirm-no {
+      background-color: #95a5a6;
+      color: white;
+    }
+    .confirm-no:hover {
+      background-color: #7f8c8d;
+    }
+    
+    .audio-button {
+      position: absolute; top: 15px; right: 15px;
+      background-color: #e74c3c; width: 50px; height: 50px; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center; color: white; font-weight: bold;
+      cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+    .audio-button:active { transform: scale(0.96); }
+    
+    /* Estilos para los elementos de audio ocultos */
+    .audio-element {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Elementos de audio ocultos para los efectos de sonido -->
+  <audio id="soundCorrect" class="audio-element" preload="auto">
+    <source src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Correcto.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="soundWrong" class="audio-element" preload="auto">
+    <source src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Error.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="soundCompleted" class="audio-element" preload="auto">
+    <source src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Completado.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="soundVictory" class="audio-element" preload="auto">
+    <source src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Terminé.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="soundTap" class="audio-element" preload="auto">
+    <source src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Tap.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="soundFinal" class="audio-element" preload="auto">
+    <source src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/main/Final.mp3" type="audio/mpeg">
+  </audio>
+  <div class="start-screen" id="startScreen">
+    <div class="start-content">
+      <h1 class="start-title">Living things and cells</h1>
+      <div class="select-game">Select a game</div>
+      
+      <div class="level-buttons">
+        <button class="level-button" id="level1Button" data-level="0">
+          Parts of the cell
+          <div class="level-status" id="status1"></div>
+        </button>
+        <button class="level-button" id="level2Button" data-level="1">
+          Types of cells
+          <div class="level-status" id="status2"></div>
+        </button>
+        <button class="level-button" id="level3Button" data-level="2">
+          Vital functions
+          <div class="level-status" id="status3"></div>
+        </button>
+        <button class="level-button" id="level4Button" data-level="3">
+          Kingdoms
+          <div class="level-status" id="status4"></div>
+        </button>
+        <button class="level-button" id="level5Button" data-level="4">
+          Levels of organisation
+          <div class="level-status" id="status5"></div>
+        </button>
+      </div>
+      
+      <button class="finish-button" id="finishGameButton">Finish and check your score</button>
+    </div>
+  </div>
+  <div class="game-container-wrapper" id="gameContainer" style="display: none;">
+    <div class="game-header">
+      <h1 class="game-title" id="gameTitle">Parts of the cell</h1>
+      <div class="game-controls">
+        <div class="timer" id="timer">Time: 0s</div>
+        <button class="give-up-button" id="giveUpButton">Give up</button>
+      </div>
+    </div>
+    
+    <div class="game-instructions" id="gameInstructions">Match the labels</div>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">0/7 matched</div>
+    
+    <div class="game-area">
+      <div class="match-container" id="gameBoard"></div>
+      
+      <div id="wordBankContainer" class="word-bank-container" aria-label="Word bank" style="display: none;"></div>
+      <div id="dropZones" class="drop-zones" aria-label="Groups" style="display: none;"></div>
+      
+      <div id="orderContainer" class="order-container" style="display: none;">
+        <div id="orderSlots" class="order-slots"></div>
+      </div>
+      
+      <div class="action-buttons">
+        <button id="checkButton" class="check-button" style="display: none;">Check Answers</button>
+        <button id="continueButton" class="continue-button" style="display: none;">Continue</button>
+        <button id="backMenuButton" class="back-menu-button" style="display: none;">Back to menu</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-content">
+      <h2>🎉 Game Completed!</h2>
+      <div class="game-title">Living things and cells</div>
+      <div class="trophy">🏆</div>
+      <div id="finalMessage" style="margin-top:6px; color:#2c3e50;"></div>
+      <div class="score-label">Puntuación:</div>
+      <p id="finalScore">0</p>
+      <p id="finalTime"></p>
+      <p id="totalScoreDetails"></p>
+      <div class="credit">Created by Manuel J. Ventura</div>
+      <button id="playAgainButton">Play Again</button>
+      
+      <!-- Imagen añadida debajo del botón "Play Again" -->
+      <img src="https://raw.githubusercontent.com/ManuelVS8/Efectos_audio/refs/heads/main/Siurot.png" 
+           alt="Siurot Icon" 
+           class="final-image">
+    </div>
+  </div>
+  
+  <div class="confirm-dialog" id="confirmDialog">
+    <div class="confirm-content">
+      <h3 class="confirm-title">Finish and back to menu?</h3>
+      <div class="confirm-buttons">
+        <button class="confirm-button confirm-yes" id="confirmYes">Yes</button>
+        <button class="confirm-button confirm-no" id="confirmNo">No</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="audio-button" id="audioButton" aria-label="Toggle sounds">🔊</div>
+  
+  <script>
+    const levels = [
+      {
+        title: "Parts of the cell",
+        instruction: "Match the labels",
+        pairs: [
+          { term: "Genetic material", definition: "Controls the cell" },
+          { term: "Cell membrane", definition: "Controls what enters the cell" },
+          { term: "Cytoplasm", definition: "Liquid that contains the organelles" },
+          { term: "Organelles", definition: "Are responsible for vital functions" },
+          { term: "Vacuoles", definition: "Contain water" },
+          { term: "Chloroplasts", definition: "Contain chlorophyll to carry out photosynthesis" },
+          { term: "Cell wall", definition: "Protects the cell and maintains the shape" }
+        ]
+      },
+      {
+        title: "Types of cells",
+        instruction: "Match the labels",
+        pairs: [
+          { term: "Unicellular", definition: "Made up of one cell" },
+          { term: "Multicellular", definition: "Made up of many cells" },
+          { term: "Prokaryotic", definition: "The genetic material is dispersed in the cytoplasm" },
+          { term: "Eukaryotic", definition: "The genetic material forms a nucleus" }
+        ]
+      },
+      {
+        title: "Vital functions",
+        instruction: "Match the labels",
+        pairs: [
+          { term: "Nutrition", definition: "Process of taking in nutrients" },
+          { term: "Autotrophs", definition: "Produce their own food" },
+          { term: "Heterotrophs", definition: "Feed on other living things" },
+          { term: "Interaction", definition: "Process of reacting to changes in the environment" },
+          { term: "Reproduction", definition: "Process of producing new living things" },
+          { term: "Asexual", definition: "Only one living thing is needed to reproduce" },
+          { term: "Sexual", definition: "Male and female are needed to reproduce" }
+        ]
+      },
+      {
+        title: "Kingdoms",
+        instruction: "Classify into the correct kingdom",
+        groups: {
+          "Animals": ["Vertebrates", "Invertebrates", "Lion", "Insect"],
+          "Plants": ["Flowering", "Non-flowering", "Tree"],
+          "Protoctists": ["Algae", "Protozoa", "Amoeba"],
+          "Fungi": ["Mould", "Yeast", "Mushroom"],
+          "Monera": ["Bacteria", "Prokaryotes"]
+        },
+        allItems: ["Vertebrates", "Invertebrates", "Lion", "Insect", "Flowering", "Non-flowering", "Tree", "Algae", "Protozoa", "Amoeba", "Mould", "Yeast", "Mushroom", "Bacteria", "Prokaryotes"]
+      },
+      {
+        title: "Levels of organisation",
+        instruction: "Order the organisation levels",
+        orderTask: true,
+        correctOrder: ["Cell", "Tissue", "Organ", "System", "Organism"],
+        allItems: ["Cell", "Tissue", "Organ", "System", "Organism"]
+      }
+    ];
+    
+    // Variables globales
+    let currentLevelIndex = -1;
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let totalPairs = 0;
+    let gameStartTime = null;
+    let currentTime = 0;
+    let timerInterval = null;
+    let isAudioEnabled = true;
+    let selectedBankItem = null;
+    let totalAttempts = 0;
+    const attemptedItems = new Set();
+    
+    // Control de niveles completados
+    const levelStatus = [false, false, false, false, false]; // false: no completado, true: completado
+    const levelScores = [0, 0, 0, 0, 0]; // Puntuación de cada nivel
+    const levelTimes = [0, 0, 0, 0, 0]; // Tiempo de cada nivel
+    
+    // Variables para el control del tiempo
+    let globalStartTime = null;
+    let accumulatedTime = 0;
+    let isTimerPaused = false;
+    
+    // Elementos del DOM
+    const startScreen = document.getElementById("startScreen");
+    const gameContainer = document.getElementById("gameContainer");
+    const gameTitle = document.getElementById("gameTitle");
+    const gameInstructions = document.getElementById("gameInstructions");
+    const timerElement = document.getElementById("timer");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const gameBoard = document.getElementById("gameBoard");
+    const wordBankContainer = document.getElementById("wordBankContainer");
+    const dropZones = document.getElementById("dropZones");
+    const orderContainer = document.getElementById("orderContainer");
+    const orderSlots = document.getElementById("orderSlots");
+    const checkButton = document.getElementById("checkButton");
+    const continueButton = document.getElementById("continueButton");
+    const backMenuButton = document.getElementById("backMenuButton");
+    const resultsScreen = document.getElementById("resultsScreen");
+    const finalScore = document.getElementById("finalScore");
+    const finalTime = document.getElementById("finalTime");
+    const totalScoreDetails = document.getElementById("totalScoreDetails");
+    const finalMessage = document.getElementById("finalMessage");
+    const playAgainButton = document.getElementById("playAgainButton");
+    const audioButton = document.getElementById("audioButton");
+    const giveUpButton = document.getElementById("giveUpButton");
+    const confirmDialog = document.getElementById("confirmDialog");
+    const confirmYes = document.getElementById("confirmYes");
+    const confirmNo = document.getElementById("confirmNo");
+    const finishGameButton = document.getElementById("finishGameButton");
+    
+    // Elementos de audio
+    const soundCorrect = document.getElementById("soundCorrect");
+    const soundWrong = document.getElementById("soundWrong");
+    const soundCompleted = document.getElementById("soundCompleted");
+    const soundVictory = document.getElementById("soundVictory");
+    const soundTap = document.getElementById("soundTap");
+    const soundFinal = document.getElementById("soundFinal");
+    
+    // Funciones para reproducir sonidos
+    function reproducirSonidoCorrecto() {
+      if (!isAudioEnabled) return;
+      soundCorrect.currentTime = 0;
+      soundCorrect.play().catch(e => console.log("Error al reproducir sonido correcto:", e));
+    }
+    
+    function reproducirSonidoError() {
+      if (!isAudioEnabled) return;
+      soundWrong.currentTime = 0;
+      soundWrong.play().catch(e => console.log("Error al reproducir sonido error:", e));
+    }
+    
+    function reproducirSonidoCompletado() {
+      if (!isAudioEnabled) return;
+      soundCompleted.currentTime = 0;
+      soundCompleted.play().catch(e => console.log("Error al reproducir sonido completado:", e));
+    }
+    
+    function reproducirSonidoVictoria() {
+      if (!isAudioEnabled) return;
+      soundVictory.currentTime = 0;
+      soundVictory.play().catch(e => console.log("Error al reproducir sonido victoria:", e));
+    }
+    
+    function reproducirSonidoTap() {
+      if (!isAudioEnabled) return;
+      soundTap.currentTime = 0;
+      soundTap.play().catch(e => console.log("Error al reproducir sonido tap:", e));
+    }
+    
+    function reproducirSonidoFinal() {
+      if (!isAudioEnabled) return;
+      soundFinal.currentTime = 0;
+      soundFinal.play().catch(e => console.log("Error al reproducir sonido final:", e));
+    }
+    
+    // Event Listeners
+    document.querySelectorAll('.level-button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const levelIndex = parseInt(this.dataset.level);
+        if (!levelStatus[levelIndex]) {
+          startLevel(levelIndex);
+        }
+      });
+    });
+    
+    giveUpButton.addEventListener("click", showConfirmDialog);
+    confirmYes.addEventListener("click", confirmGiveUp);
+    confirmNo.addEventListener("click", cancelGiveUp);
+    playAgainButton.addEventListener("click", resetGame);
+    
+    // CORRECCIÓN: Conectar el botón "Finish and check your score" con la función finishGame
+    finishGameButton.addEventListener("click", finishGame);
+    
+    audioButton.addEventListener("click", () => {
+      isAudioEnabled = !isAudioEnabled;
+      audioButton.textContent = isAudioEnabled ? "🔊" : "🔇";
+    });
+    
+    checkButton.addEventListener("click", () => {
+      if (currentLevelIndex === 3) checkKingdomAnswers();
+      if (currentLevelIndex === 4) checkOrderAnswers();
+    });
+    
+    continueButton.addEventListener("click", () => {
+      if (currentLevelIndex === 3 || currentLevelIndex === 4) {
+        continueToNext();
+      }
+    });
+    
+    backMenuButton.addEventListener("click", backToMenu);
+    
+    function startLevel(levelIndex) {
+      currentLevelIndex = levelIndex;
+      startScreen.classList.add("hidden");
+      gameContainer.style.display = "block";
+      
+      // Resetear variables del nivel
+      flippedCards = [];
+      matchedPairs = 0;
+      selectedBankItem = null;
+      totalAttempts = 0;
+      attemptedItems.clear();
+      
+      // Configurar título e instrucciones
+      gameTitle.textContent = levels[levelIndex].title;
+      gameInstructions.textContent = levels[levelIndex].instruction;
+      
+      // Iniciar el temporizador global si es la primera vez
+      if (globalStartTime === null) {
+        globalStartTime = new Date();
+        accumulatedTime = 0;
+        isTimerPaused = false;
+        startTimer();
+      } else if (isTimerPaused) {
+        // Reanudar el temporizador
+        startTimer();
+      }
+      
+      // Inicializar el nivel
+      setTimeout(() => {
+        initLevel();
+      }, 100);
+    }
+    
+    function initLevel() {
+      // Resetear la visualización
+      gameBoard.innerHTML = "";
+      wordBankContainer.innerHTML = "";
+      dropZones.innerHTML = "";
+      orderSlots.innerHTML = "";
+      checkButton.style.display = "none";
+      continueButton.style.display = "none";
+      backMenuButton.style.display = "none";
+      wordBankContainer.style.display = "none";
+      dropZones.style.display = "none";
+      orderContainer.style.display = "none";
+      gameBoard.style.display = "grid";
+      
+      // Configurar según el tipo de nivel
+      if (currentLevelIndex <= 2) {
+        // Niveles 1, 2, 3: Emparejar
+        initMatchLevel();
+      } else if (currentLevelIndex === 3) {
+        // Nivel 4: Clasificar
+        initKingdomsLevel();
+      } else if (currentLevelIndex === 4) {
+        // Nivel 5: Ordenar
+        initOrderLevel();
+      }
+      
+      updateProgress();
+    }
+    
+    function initMatchLevel() {
+      const level = levels[currentLevelIndex];
+      totalPairs = level.pairs.length;
+      
+      const cards = [];
+      level.pairs.forEach(pair => {
+        cards.push({ ...pair, type: "term", id: pair.term });
+        cards.push({ ...pair, type: "definition", id: pair.term });
+      });
+      
+      shuffleArray(cards);
+      
+      cards.forEach(cardData => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.id = cardData.id;
+        card.dataset.type = cardData.type;
+        card.textContent = cardData[cardData.type];
+        card.addEventListener("click", onCardClickToggle);
+        gameBoard.appendChild(card);
+      });
+    }
+    
+    function onCardClickToggle() {
+      // Reproducir sonido tap en niveles 1, 2 y 3 al hacer clic en una tarjeta
+      if (currentLevelIndex <= 2) {
+        reproducirSonidoTap();
+      }
+      
+      if (this.classList.contains("matched")) return;
+      
+      // Si la carta ya está seleccionada y es la única seleccionada, deseleccionar
+      if (this.classList.contains("selected") &&
+          flippedCards.length === 1 &&
+          flippedCards[0] === this) {
+        this.classList.remove("selected");
+        flippedCards.pop();
+        return;
+      }
+      
+      // Si no hay cartas seleccionadas todavía
+      if (flippedCards.length === 0) {
+        this.classList.add("selected");
+        flippedCards.push(this);
+        return;
+      }
+      
+      // Si hay una carta seleccionada distinta, seleccionar la segunda y comprobar
+      if (flippedCards.length === 1 && flippedCards[0] !== this) {
+        this.classList.add("selected");
+        flippedCards.push(this);
+        checkMatch();
+      }
+    }
+    
+    function checkMatch() {
+      const [c1, c2] = flippedCards;
+      const pairId = c1.dataset.id;
+      const isMatch = pairId === c2.dataset.id;
+      
+      // Contar este intento
+      totalAttempts++;
+      
+      if (isMatch) {
+        c1.classList.replace("selected", "matched");
+        c2.classList.replace("selected", "matched");
+        matchedPairs++;
+        reproducirSonidoCorrecto(); // Reproducir sonido de emparejamiento correcto
+        updateProgress();
+        flippedCards = [];
+        
+        if (matchedPairs === totalPairs) {
+          // Nivel completado
+          const score = Math.round((totalPairs / totalAttempts) * 20);
+          levelScores[currentLevelIndex] = score;
+          levelStatus[currentLevelIndex] = true;
+          
+          // Pausar el temporizador y guardar el tiempo
+          pauseTimer();
+          levelTimes[currentLevelIndex] = currentTime;
+          
+          // Reproducir sonido de nivel completado
+          reproducirSonidoCompletado();
+          
+          // Mostrar botón para volver al menú
+          backMenuButton.style.display = "block";
+          
+          // Actualizar el estado del botón en el menú
+          updateLevelButtonStatus(currentLevelIndex, score);
+        }
+      } else {
+        reproducirSonidoError(); // Reproducir sonido de emparejamiento incorrecto
+        setTimeout(() => {
+          c1.classList.remove("selected");
+          c2.classList.remove("selected");
+          flippedCards = [];
+        }, 700);
+      }
+    }
+    
+    function initKingdomsLevel() {
+      gameBoard.style.display = "none";
+      dropZones.style.display = "grid";
+      checkButton.style.display = "block";
+      checkButton.disabled = false;
+      createWordBank(levels[currentLevelIndex].allItems);
+      
+      const level = levels[currentLevelIndex];
+      Object.keys(level.groups).forEach(groupName => {
+        const groupDiv = document.createElement("div");
+        groupDiv.classList.add("drop-group");
+        groupDiv.innerHTML = `<h3>${groupName}</h3>`;
+        const dropArea = document.createElement("div");
+        dropArea.classList.add("drop-area");
+        dropArea.dataset.group = groupName;
+        
+        // Eventos para el arrastre en las zonas de destino
+        dropArea.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropArea.classList.add("drag-over");
+        });
+        
+        dropArea.addEventListener("dragleave", () => {
+          dropArea.classList.remove("drag-over");
+        });
+        
+        dropArea.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dropArea.classList.remove("drag-over");
+          const word = e.dataTransfer.getData("text/plain");
+          
+          // Reproducir sonido tap en nivel 4 al soltar un elemento
+          reproducirSonidoTap();
+          
+          // Verificar si es un placed-item que ya está en una drop-area
+          const placedItem = document.querySelector(`.placed-item[data-word="${word}"]`);
+          
+          if (placedItem) {
+            // Mover el placed-item de su drop-area actual a la nueva
+            const oldDropArea = placedItem.closest(".drop-area");
+            if (oldDropArea) {
+              placedItem.remove();
+            }
+            // Añadir a la nueva drop-area
+            dropArea.appendChild(placedItem);
+          } else {
+            // Es un elemento del banco
+            const bankItem = document.querySelector(`.bank-item[data-word="${word}"]`);
+            if (bankItem && !bankItem.classList.contains('used')) {
+              const el = document.createElement("div");
+              el.classList.add("placed-item");
+              el.textContent = word;
+              el.dataset.word = word;
+              
+              // Hacer el elemento arrastrable
+              el.draggable = true;
+              el.addEventListener("dragstart", (e) => {
+                e.dataTransfer.setData("text/plain", word);
+                el.classList.add("dragging");
+              });
+              
+              el.addEventListener("dragend", () => {
+                el.classList.remove("dragging");
+              });
+              
+              el.addEventListener("click", (e) => {
+                e.stopPropagation();
+                returnWordToBank(el);
+              });
+              
+              dropArea.appendChild(el);
+              bankItem.classList.add("used");
+            }
+          }
+        });
+        
+        // Evento para la selección por clic
+        dropArea.addEventListener("click", () => handleKingdomDropAreaClick(dropArea));
+        
+        groupDiv.appendChild(dropArea);
+        dropZones.appendChild(groupDiv);
+      });
+    }
+    
+    function createWordBank(items) {
+      wordBankContainer.style.display = "flex";
+      const shuffledItems = [...items];
+      shuffleArray(shuffledItems);
+      
+      shuffledItems.forEach(item => {
+        const el = document.createElement("div");
+        el.classList.add("bank-item");
+        el.textContent = item;
+        el.dataset.word = item;
+        el.draggable = true;
+        
+        // Eventos para el arrastre
+        el.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", item);
+          el.classList.add("dragging");
+        });
+        
+        el.addEventListener("dragend", () => {
+          el.classList.remove("dragging");
+        });
+        
+        // Evento para la selección por clic
+        el.addEventListener("click", () => handleBankItemSelect(el));
+        
+        wordBankContainer.appendChild(el);
+      });
+      
+      // Hacer que el banco de palabras acepte elementos arrastrados
+      wordBankContainer.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        wordBankContainer.classList.add("drag-over");
+      });
+      
+      wordBankContainer.addEventListener("dragleave", () => {
+        wordBankContainer.classList.remove("drag-over");
+      });
+      
+      wordBankContainer.addEventListener("drop", (e) => {
+        e.preventDefault();
+        wordBankContainer.classList.remove("drag-over");
+        const word = e.dataTransfer.getData("text/plain");
+        const placedItem = document.querySelector(`.placed-item[data-word="${word}"]`);
+        
+        if (placedItem) {
+          // Devolver el elemento al banco
+          const bankItem = document.querySelector(`.bank-item[data-word="${word}"]`);
+          if (bankItem) bankItem.classList.remove("used");
+          placedItem.remove();
+        }
+      });
+    }
+    
+    function handleBankItemSelect(itemElement) {
+      if (itemElement.classList.contains('selected')) {
+        itemElement.classList.remove('selected');
+        selectedBankItem = null;
+      } else {
+        const currentSelected = document.querySelector('.bank-item.selected');
+        if (currentSelected) currentSelected.classList.remove('selected');
+        itemElement.classList.add('selected');
+        selectedBankItem = itemElement;
+      }
+    }
+    
+    function handleKingdomDropAreaClick(dropArea) {
+      if (!selectedBankItem) return;
+      
+      // Reproducir sonido tap en nivel 4 al hacer clic en una zona de destino
+      reproducirSonidoTap();
+      
+      const word = selectedBankItem.dataset.word;
+      const el = document.createElement("div");
+      el.classList.add("placed-item");
+      el.textContent = word;
+      el.dataset.word = word;
+      
+      // Hacer el elemento arrastrable
+      el.draggable = true;
+      el.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", word);
+        el.classList.add("dragging");
+      });
+      
+      el.addEventListener("dragend", () => {
+        el.classList.remove("dragging");
+      });
+      
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        returnWordToBank(el);
+      });
+      
+      dropArea.appendChild(el);
+      selectedBankItem.classList.add("used");
+      selectedBankItem.classList.remove("selected");
+      selectedBankItem = null;
+    }
+    
+    function returnWordToBank(placedItem) {
+      const word = placedItem.dataset.word;
+      const bankItem = document.querySelector(`.bank-item[data-word="${word}"]`);
+      if (bankItem) bankItem.classList.remove("used");
+      placedItem.remove();
+    }
+    
+    function checkKingdomAnswers() {
+      const level = levels[currentLevelIndex];
+      const allPlacedItems = document.querySelectorAll(".placed-item");
+      let correctCount = 0;
+      
+      allPlacedItems.forEach(item => {
+        const word = item.dataset.word;
+        const parentGroup = item.closest(".drop-area").dataset.group;
+        const correctGroup = Object.keys(level.groups).find(g => level.groups[g].includes(word));
+        if (parentGroup === correctGroup) {
+          correctCount++;
+          item.classList.add("correct");
+        } else {
+          item.classList.add("wrong");
+        }
+      });
+      
+      // Reproducir sonido según si hay aciertos o errores
+      if (correctCount === 15) {
+        reproducirSonidoCompletado(); // Todas las respuestas correctas
+      } else {
+        reproducirSonidoError(); // Hay al menos un error
+      }
+      
+      // Pausar el temporizador y guardar el tiempo
+      pauseTimer();
+      levelTimes[currentLevelIndex] = currentTime;
+      
+      // Calcular puntuación
+      const score = Math.round((correctCount / 15) * 20);
+      levelScores[currentLevelIndex] = score;
+      levelStatus[currentLevelIndex] = true;
+      
+      // Actualizar el estado del botón en el menú
+      updateLevelButtonStatus(currentLevelIndex, score);
+      
+      // Ocultar botón check y mostrar botón back to menu
+      checkButton.style.display = "none";
+      backMenuButton.style.display = "block";
+    }
+    
+    function initOrderLevel() {
+      gameBoard.style.display = "none";
+      orderContainer.style.display = "flex";
+      checkButton.style.display = "block";
+      checkButton.disabled = false;
+      createWordBank(levels[currentLevelIndex].allItems);
+      
+      const level = levels[currentLevelIndex];
+      level.correctOrder.forEach((_, index) => {
+        const slot = document.createElement("div");
+        slot.classList.add("order-slot");
+        slot.dataset.index = index;
+        
+        // Eventos para el arrastre en las casillas de orden
+        slot.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          slot.classList.add("drag-over");
+        });
+        
+        slot.addEventListener("dragleave", () => {
+          slot.classList.remove("drag-over");
+        });
+        
+        slot.addEventListener("drop", (e) => {
+          e.preventDefault();
+          slot.classList.remove("drag-over");
+          const word = e.dataTransfer.getData("text/plain");
+          
+          // Reproducir sonido tap en nivel 5 al soltar un elemento
+          reproducirSonidoTap();
+          
+          // Verificar si es un placed-item que ya está en un order-slot
+          const placedItem = document.querySelector(`.placed-item[data-word="${word}"]`);
+          
+          if (placedItem) {
+            // Mover el placed-item de su order-slot actual a la nueva
+            const oldSlot = placedItem.closest(".order-slot");
+            if (oldSlot) {
+              // Verificar si el slot de destino ya tiene un elemento
+              const existingItem = slot.querySelector(".placed-item");
+              
+              if (existingItem) {
+                // Intercambiar los elementos
+                oldSlot.appendChild(existingItem);
+                slot.appendChild(placedItem);
+              } else {
+                // Mover el elemento al nuevo slot
+                placedItem.remove();
+                slot.appendChild(placedItem);
+                // Actualizar el estado del slot antiguo
+                if (!oldSlot.firstChild) {
+                  oldSlot.classList.remove("occupied");
+                }
+              }
+            }
+            
+            // Asegurar que el nuevo slot tenga la clase 'occupied'
+            slot.classList.add("occupied");
+          } else {
+            // Es un elemento del banco
+            const bankItem = document.querySelector(`.bank-item[data-word="${word}"]`);
+            if (bankItem && !bankItem.classList.contains('used')) {
+              // Verificar si el slot ya tiene un elemento
+              const existingItem = slot.querySelector(".placed-item");
+              
+              if (existingItem) {
+                // Intercambiar: devolver el elemento existente al banco
+                returnWordToBank(existingItem);
+              }
+              
+              const el = document.createElement("div");
+              el.classList.add("placed-item");
+              el.textContent = word;
+              el.dataset.word = word;
+              
+              // Hacer el elemento arrastrable
+              el.draggable = true;
+              el.addEventListener("dragstart", (e) => {
+                e.dataTransfer.setData("text/plain", word);
+                el.classList.add("dragging");
+              });
+              
+              el.addEventListener("dragend", () => {
+                el.classList.remove("dragging");
+              });
+              
+              el.addEventListener("click", (e) => {
+                e.stopPropagation();
+                // En el nivel 5 no se permite devolver al banco
+              });
+              
+              slot.innerHTML = '';
+              slot.appendChild(el);
+              slot.classList.add("occupied");
+              bankItem.classList.add("used");
+            }
+          }
+        });
+        
+        // Evento para la selección por clic
+        slot.addEventListener("click", () => handleOrderSlotClick(slot));
+        
+        orderSlots.appendChild(slot);
+      });
+    }
+    
+    function handleOrderSlotClick(slot) {
+      if (!selectedBankItem) return;
+      
+      // Reproducir sonido tap en nivel 5 al hacer clic en una casilla
+      reproducirSonidoTap();
+      
+      const wordToPlace = selectedBankItem.dataset.word;
+      
+      // Verificar si el slot ya tiene un elemento
+      const existingItem = slot.querySelector(".placed-item");
+      
+      if (existingItem) {
+        // Intercambiar: devolver el elemento existente al banco
+        returnWordToBank(existingItem);
+      }
+      
+      const el = document.createElement("div");
+      el.classList.add("placed-item");
+      el.textContent = wordToPlace;
+      el.dataset.word = wordToPlace;
+      
+      // Hacer el elemento arrastrable
+      el.draggable = true;
+      el.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", wordToPlace);
+        el.classList.add("dragging");
+      });
+      
+      el.addEventListener("dragend", () => {
+        el.classList.remove("dragging");
+      });
+      
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        // En el nivel 5 no se permite devolver al banco
+      });
+      
+      slot.innerHTML = '';
+      slot.appendChild(el);
+      slot.classList.add("occupied");
+      selectedBankItem.classList.add("used");
+      selectedBankItem.classList.remove("selected");
+      selectedBankItem = null;
+    }
+    
+    function checkOrderAnswers() {
+      const level = levels[currentLevelIndex];
+      const slots = document.querySelectorAll(".order-slot");
+      let correctCount = 0;
+      
+      slots.forEach((slot, index) => {
+        const item = slot.querySelector(".placed-item");
+        if (item) {
+          const word = item.dataset.word;
+          if (word === level.correctOrder[index]) {
+            correctCount++;
+            item.classList.add("correct");
+          } else {
+            item.classList.add("wrong");
+          }
+        }
+      });
+      
+      // Reproducir sonido según si hay aciertos o errores
+      if (correctCount === 5) {
+        reproducirSonidoCompletado(); // Todas las respuestas correctas
+      } else {
+        reproducirSonidoError(); // Hay al menos un error
+      }
+      
+      // Pausar el temporizador y guardar el tiempo
+      pauseTimer();
+      levelTimes[currentLevelIndex] = currentTime;
+      
+      // Calcular puntuación
+      const score = Math.round((correctCount / 5) * 20);
+      levelScores[currentLevelIndex] = score;
+      levelStatus[currentLevelIndex] = true;
+      
+      // Actualizar el estado del botón en el menú
+      updateLevelButtonStatus(currentLevelIndex, score);
+      
+      // Ocultar botón check y mostrar botón back to menu
+      checkButton.style.display = "none";
+      backMenuButton.style.display = "block";
+    }
+    
+    function updateProgress() {
+      const percent = totalPairs > 0 ? (matchedPairs / totalPairs) * 100 : 0;
+      progressBar.style.width = `${percent}%`;
+      if (totalPairs > 0) {
+        progressText.textContent = `${matchedPairs}/${totalPairs} matched`;
+      } else {
+        progressText.textContent = `Arrange the items`;
+      }
+    }
+    
+    function startTimer() {
+      // Limpiar el intervalo anterior si existe
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+      if (isTimerPaused) {
+        // Reanudar el temporizador
+        isTimerPaused = false;
+        globalStartTime = new Date() - accumulatedTime;
+      } else {
+        // Iniciar el temporizador
+        globalStartTime = new Date();
+      }
+      timerInterval = setInterval(() => {
+        currentTime = Math.floor((new Date() - globalStartTime) / 1000);
+        timerElement.textContent = `Time: ${currentTime}s`;
+      }, 1000);
+    }
+    
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      isTimerPaused = true;
+      accumulatedTime = new Date() - globalStartTime;
+    }
+    
+    function showConfirmDialog() {
+      pauseTimer();
+      confirmDialog.classList.add("active");
+    }
+    
+    function confirmGiveUp() {
+      // Marcar el nivel como completado incorrectamente
+      levelStatus[currentLevelIndex] = true;
+      levelScores[currentLevelIndex] = 0;
+      levelTimes[currentLevelIndex] = currentTime;
+      
+      // Actualizar el estado del botón en el menú
+      updateLevelButtonStatus(currentLevelIndex, 0);
+      
+      // Cerrar diálogo y volver al menú
+      confirmDialog.classList.remove("active");
+      backToMenu();
+    }
+    
+    function cancelGiveUp() {
+      // Reanudar el temporizador
+      startTimer();
+      
+      // Cerrar diálogo
+      confirmDialog.classList.remove("active");
+    }
+    
+    function backToMenu() {
+      gameContainer.style.display = "none";
+      startScreen.classList.remove("hidden");
+    }
+    
+    function continueToNext() {
+      // En los niveles 4 y 5, este botón no se usa, se usa backToMenu
+      backToMenu();
+    }
+    
+    function updateLevelButtonStatus(levelIndex, score) {
+      const button = document.getElementById(`level${levelIndex + 1}Button`);
+      const status = document.getElementById(`status${levelIndex + 1}`);
+      
+      // Marcar como completado
+      button.disabled = true;
+      status.textContent = "Completed";
+      
+      // Cambiar color según puntuación
+      if (score === 20) {
+        button.classList.add("completed-correct");
+      } else {
+        button.classList.add("completed-wrong");
+      }
+    }
+    
+    function finishGame() {
+      // OCULTA LA PANTALLA DE INICIO ANTES DE MOSTRAR LOS RESULTADOS
+      startScreen.classList.add("hidden");
+    
+      // Calcular puntuación total y tiempo total
+      let totalScore = 0;
+      let totalTime = 0;
+      let completedLevels = 0;
+      
+      for (let i = 0; i < 5; i++) {
+        if (levelStatus[i]) {
+          totalScore += levelScores[i];
+          totalTime += levelTimes[i];
+          completedLevels++;
+        }
+      }
+      
+      // Mostrar pantalla final
+      finalTime.textContent = `⏱️ Total Time: ${totalTime} seconds`;
+      finalScore.textContent = `${totalScore}`;
+      totalScoreDetails.textContent = `Total score: ${totalScore}/100 (Completed levels: ${completedLevels}/5)`;
+      
+      const trophyEl = document.querySelector('.trophy');
+      finalMessage.textContent = totalScore === 100
+        ? "Excellent! Perfect score!"
+        : "Well done! Keep practising!";
+      
+      // Mostrar trofeo y reproducir sonido de victoria solo si la puntuación es 100
+      if (totalScore === 100 && completedLevels > 0) {
+        trophyEl.style.display = 'block';
+        createConfetti();
+        reproducirSonidoVictoria(); // Reproducir sonido de victoria solo si la puntuación es 100
+      } else {
+        trophyEl.style.display = 'none';
+        reproducirSonidoFinal(); // Reproducir sonido final si la puntuación no es 100
+      }
+      
+      resultsScreen.classList.add("active");
+    }
+    
+    function createConfetti() {
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.top = Math.random() * 100 + "vh";
+        confetti.style.backgroundColor = randomColor();
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+        setTimeout(() => {
+          confetti.style.transition = "top 3s ease, opacity 3s ease";
+          confetti.style.top = "100vh";
+          confetti.style.opacity = "0";
+          setTimeout(() => confetti.remove(), 3000);
+        }, Math.random() * 800);
+      }
+    }
+    
+    function randomColor() {
+      const colors = ["#f00", "#0f0", "#00f", "#ff0", "#f0f", "#0ff"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    
+    function resetGame() {
+      // Resetear variables
+      currentLevelIndex = -1;
+      levelStatus.fill(false);
+      levelScores.fill(0);
+      levelTimes.fill(0);
+      globalStartTime = null;
+      accumulatedTime = 0;
+      isTimerPaused = false;
+      
+      // Resetear UI
+      resultsScreen.classList.remove("active");
+      document.querySelectorAll(".confetti").forEach(el => el.remove());
+      
+      // Resetear botones de nivel
+      for (let i = 1; i <= 5; i++) {
+        const button = document.getElementById(`level${i}Button`);
+        const status = document.getElementById(`status${i}`);
+        
+        button.disabled = false;
+        button.classList.remove("completed-correct", "completed-wrong");
+        status.textContent = "";
+      }
+      
+      // Mostrar pantalla de inicio
+      startScreen.classList.remove("hidden");
+      gameContainer.style.display = "none";
+    }
+    
+    // Inicializar la aplicación
+    window.onload = function() {
+      // Mostrar pantalla de inicio
+      startScreen.classList.remove("hidden");
+      
+      // Precargar los sonidos para asegurar que estén listos cuando se necesiten
+      soundCorrect.load();
+      soundWrong.load();
+      soundCompleted.load();
+      soundVictory.load();
+      soundTap.load();
+      soundFinal.load();
+      
+      console.log("Sonidos precargados usando etiquetas de audio HTML");
+    };
+  </script>
+</body>
+</html>
